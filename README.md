@@ -11,7 +11,7 @@ NOTE: Ringer doesn't have very good security as of right now. If you do sign up 
  5. After the installer completes, search for ringer in windows search 
  6. If you cant find ringer through widows search, navigate to "C:/Ringer Software" and run "Ringer.exe" 
 
-#Ringer Setup
+# Ringer Setup
 **NOTE: This section is for the software setup after instalation. If you have not installed ringer, please refer to the previous section.**
  1. Upon first launch of the ringer software, you should see a window saying "Welcome To Ringer". Underneath, click the button "Lets Go" 
  2. If you do not have a ringer account, click "No, Create One" If you have a ringer account, click "Yes, Log Me In" and login from there. 
