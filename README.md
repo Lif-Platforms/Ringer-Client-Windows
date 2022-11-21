@@ -3,6 +3,10 @@ Ringer is a new messaging app for windows. Its currently in beta but lets work t
 
 **NOTE: Ringer doesn't have very good security as of right now. If you do sign up please make your password not the same as everywhere else.**
 
+# Server Code
+
+Ringers server code is located in another repository: https://github.com/Superior126/Ringer-Server
+
 # Install Latest Stable Build
  1. Navigate to the main directory
  2. Download the file named "Ringer Installer.exe" 
