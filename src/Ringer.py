@@ -1,16 +1,12 @@
-from difflib import restore
+#imports
 import socket
 import threading
-from textwrap import fill
 import socket
 from tkinter import* 
 import tkinter as tk 
 import tkinter.font as font 
 from tkinter import messagebox 
 import sys
-from urllib import response
-#from wsgiref.types import InputStream  
-print(sys.executable)
 from PIL import ImageTk,Image
 from plyer import notification
 import os
@@ -21,11 +17,11 @@ import hashlib
 import re
 import time
 
-#server: 75.67.97.72
-global serverIp 
+
+global serverIp #global variable for the server ip
 serverIp ="127.0.0.1" 
 
-global revoveryIp
+global recoveryIp #ip address for the recovery server. Recovery server responsible for the "forget password" functionality 
 recoveryIp = "127.0.0.1" 
 
 print("import complete")
@@ -37,17 +33,17 @@ infoCheck = 0
 global Online
 Online = False
 
-global audioPlayed
+global audioPlayed # ensures that the audio for ringer startup is only played once 
 audioPlayed = False
 
-global ringerVersion
+global ringerVersion 
 ringerVersion = "SNAPSHOT-3.0"
 
 global createAccountOpen
 createAccountOpen = False
 
 
-def welcomeWindow():
+def welcomeWindow(): #this window is triggered when ringer is installed for the first time
     global audioPlayed
     if audioPlayed == False:
         playsound('Sounds/Ringer Startup.wav')
@@ -112,7 +108,7 @@ def welcomeWindow():
             else:
                 os.mkdir(os.path.expanduser('~') + "/AppData/Roaming/RingerLoginData")
 
-            def Getnick(): #gets the login credentials
+            def Getnick(): #gets the login credentials and sends them to the server
                 global nickname
                 global display
                 nickname = f"{user.get()}{password.get()}"
