@@ -10,6 +10,10 @@ assignees: ''
 **Describe the bug**
 A clear and concise description of what the bug is.
 
+**Which Version**
+Stable or Snapshot: 
+Software Version: 
+
 **To Reproduce**
 Steps to reproduce the behavior:
 1. ...
