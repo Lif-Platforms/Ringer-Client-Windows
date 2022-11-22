@@ -13,7 +13,7 @@ Ringers server code is located in another repository: https://github.com/Superio
  3. Once Downloaded, run the "Ringer Installer.exe", wait a minute for the installer to open
  4. Once open, click the "Install" button and ringer will begin installing
  5. After the installer completes, search for ringer in windows search 
- 6. If you cant find ringer through widows search, navigate to "C:/Ringer Software" and run "Ringer.exe" 
+ 6. If you cant find Ringer through widows search, navigate to "C:/Ringer Software" and run "Ringer.exe" 
 
 # Ringer Setup
 **NOTE: This section is for the software setup after installation. If you have not installed ringer, please refer to the previous section.**
