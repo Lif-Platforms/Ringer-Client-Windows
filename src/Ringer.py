@@ -13,7 +13,7 @@ import os
 from urllib.request import Request, urlopen
 from random import randint
 from playsound import playsound
-import hashlib
+import Packages.passwordHasher as passwordHasher
 import re
 import time
 
@@ -196,17 +196,8 @@ def welcomeWindow(): #this window is triggered when ringer is installed for the 
                         if Message == 'PASSWORD?':
                             password = passwordinput.get()
                             print('got password')
-                            # adding 5gz as password
-                            salt = "5gz"
                             
-                            # Adding salt at the last of the password
-                            dataBase_password = password+salt
-                            # Encoding the password
-                            hashed = hashlib.md5(dataBase_password.encode())
-                            print('hashed password')
-                            
-                            # Sending the Hash
-                            client.send(hashed.hexdigest().encode('ascii'))
+                            client.send(passwordHasher.get_initial_hash(password).encode('ascii')) 
                             print('sent password')
 
                         if Message == 'EMAIL?':
@@ -401,18 +392,8 @@ def LOGIN():
                             resetSuccess = False
                             client.send("SENDING...".encode('ascii'))
                             password = passwordEntry.get()
-                            # adding 5gz as password
-                            salt = "5gz"
-                            
-                            # Adding salt at the last of the password
-                            dataBase_password = password+salt
-                            # Encoding the password
-                            hashed = hashlib.md5(dataBase_password.encode())
-                            print('hashed password')
-                            
-                            # Sending the Hash
-                            client.send(hashed.hexdigest().encode('ascii'))
-                            print('sent password')
+                           
+                            client.send(passwordHasher.get_initial_hash(password).encode('ascii')) 
                             
                             while True:
                                 resetStatus = client.recv(1024).decode('ascii')
@@ -474,16 +455,8 @@ def LOGIN():
 
                 if Message == 'PASSWORD':
                     password = passwrd
-
-                    salt = "5gz"
-  
-                    # Adding salt at the last of the password
-                    dataBase_password = password+salt
-                    # Encoding the password
-                    hashed = hashlib.md5(dataBase_password.encode())
-                    # Printing the Hash
-                    client.send(hashed.hexdigest().encode('ascii'))
-                    print(hashed.hexdigest())
+                   
+                    client.send(passwordHasher.get_initial_hash(password).encode('ascii')) 
 
                 if Message == 'LOGIN_GOOD':
                     print("login Successful")
@@ -615,17 +588,8 @@ def LOGIN():
                         password = passwordinput.get()
                         print('got password')
                         # adding 5gz as password
-                        salt = "5gz"
-                        
-                        # Adding salt at the last of the password
-                        dataBase_password = password+salt
-                        # Encoding the password
-                        hashed = hashlib.md5(dataBase_password.encode())
-                        print('hashed password')
-                        
-                        # Sending the Hash
-                        client.send(hashed.hexdigest().encode('ascii'))
-                        print('sent password')
+                       
+                        client.send(passwordHasher.get_initial_hash(password).encode('ascii')) 
 
                     if Message == 'EMAIL?':
                         client.send(checkEmail.encode('ascii'))
@@ -806,16 +770,8 @@ def Connect2(): #handles connecting and logging into the server
 
                 if Message == 'PASSWORD':
                     password = passwrd
-
-                    salt = "5gz"
-  
-                    # Adding salt at the last of the password
-                    dataBase_password = password+salt
-                    # Encoding the password
-                    hashed = hashlib.md5(dataBase_password.encode())
-                    # Printing the Hash
-                    client.send(hashed.hexdigest().encode('ascii'))
-                    print(hashed.hexdigest())
+                    
+                    client.send(passwordHasher.get_initial_hash(password).encode('ascii')) 
 
                 if Message == 'LOGIN_GOOD':
                     print("login Sucsessful")
@@ -996,15 +952,7 @@ def addDm():
             if Message == 'PASSWORD':
                 password = passwrd
 
-                salt = "5gz"
-
-                # Adding salt at the last of the password
-                dataBase_password = password+salt
-                # Encoding the password
-                hashed = hashlib.md5(dataBase_password.encode())
-                # Printing the Hash
-                lifAccountServer.send(hashed.hexdigest().encode('ascii'))
-                print(hashed.hexdigest())
+                client.send(passwordHasher.get_initial_hash(password).encode('ascii')) 
 
             if Message == 'LOGIN_GOOD':
                 print("login Successful")
