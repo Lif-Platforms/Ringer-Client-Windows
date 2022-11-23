@@ -16,6 +16,7 @@ from playsound import playsound
 import Packages.passwordHasher as passwordHasher
 import re
 import time
+import customtkinter
 
 
 global serverIp #global variable for the server ip
@@ -873,14 +874,23 @@ if outdated == True:
 root = Tk() #main window for sending messages
 
 if audioPlayed == False:
-        playsound("Sounds/Ringer Startup.wav")
+        #playsound("Sounds/Ringer Startup.wav")
         audioPlayed = True
 
+#configuring root
 windowTitle = f"Ringer (Beta v{ringerVersion})"
 root.state("zoomed")
 root.title(windowTitle)   
+root.configure(background="black")
+
+#fonts
 sendFont = ('Arial',20)
 reciveFont = ('Arial')
+
+#colors
+bgColor = "black"
+midgroundColor = "#141414" #color for ui elements like frames and buttons
+fgColor = "white"
 
 Online = True
 
@@ -922,16 +932,15 @@ def LogOut():
 
 def VCWIN():
     messagebox.showinfo("Ringer Vc", "Voice calls aren't out yet but they will be soon!")
-root.configure(background="#202225")
 
 global DMadd
 DMadd = "none"
 
 def addDm():
-    addDmWindow = Tk()
+    addDmWindow = Toplevel()
     addDmWindow.title("Add DM") 
     addDmWindow.focus()                    
-    addDmWindow.config(bg='#202225') 
+    addDmWindow.config(bg= bgColor) 
     addDmWindow.geometry("500x500")
     #addDmWindow.iconbitmap("Ringer-Icon.ico")
 
@@ -942,42 +951,38 @@ def addDm():
         lifAccountServer.connect((serverIp, 20205))
 
         while True:
-            Message = lifAccountServer.recv(1024).decode('ascii')
-            print(Message)
+            DMmessage = lifAccountServer.recv(1024).decode('ascii')
+            if DMmessage:
+                print(DMmessage)
 
-            if Message == 'USERNAME':
+            if DMmessage == 'USERNAME':
                 lifAccountServer.send(nickname.encode('ascii'))
                 print(nickname)
 
-            if Message == 'PASSWORD':
+            if DMmessage == 'PASSWORD':
                 password = passwrd
 
-                client.send(passwordHasher.get_initial_hash(password).encode('ascii')) 
+                lifAccountServer.send(passwordHasher.get_initial_hash(password).encode('ascii')) 
 
-            if Message == 'LOGIN_GOOD':
+            if DMmessage == 'LOGIN_GOOD':
                 print("login Successful")
-                
+                lifAccountServer.send("ADD_DM".encode('ascii'))
                 #playsound("Sounds/Ringer Welcome Login.wav")
-                break
 
-            if Message == 'BAD_LOGIN_ERROR':
+            if DMmessage == 'BAD_LOGIN_ERROR':
                 #response = messagebox.askquestion("Error", "Username or Password is Incorrect. Would You Like to reset Your Password?")
                 messagebox.showerror('Error', 'Username or password is incorrect.')
 
-        while True:
-            lifAccountServer.send("ADD_DM".encode('ascii'))
-            message = lifAccountServer.recv(1024).decode('ascii')
-            if message == "DM_NAME?":
+            if DMmessage == "DM_NAME?":
                 lifAccountServer.send(dmEntry.get().encode('ascii'))
                 print("sent dm name")
 
-            if message == "SUCCESS!":
+            if DMmessage == "SUCCESS!":
                 print('success')
                 addDmWindow.destroy() 
                 break
-        
 
-    dmTitle = Label(addDmWindow, text="Add a Conversation", bg='#202225', fg='white')
+    dmTitle = Label(addDmWindow, text="Add a Conversation", bg=bgColor, fg='white')
     dmTitle.pack()
 
     dmEntry = Entry(addDmWindow, width=20, borderwidth=0)
@@ -987,38 +992,37 @@ def addDm():
     sendDm.pack()
 
     addDmWindow.resizable(False, False)
-    addDmWindow.mainloop()
 
 myFont = font.Font(family='Arial')
 
-GUI = Frame(root, bg='#202225')
+GUI = Frame(root, bg=bgColor)
 GUI.pack(side=BOTTOM, fill=BOTH, expand=True, pady=20)
 
 text_scroll = Scrollbar(root) 
 text_scroll.pack(side=RIGHT, fill=Y, pady=10) 
 
-logOut = Button(root, text="Logout", command=LogOut, bg='#2f3136', borderwidth='0', fg='white')
+logOut = Button(root, text="Logout", command=LogOut, bg=midgroundColor, borderwidth='0', fg='white')
 logOut.pack(side=TOP, anchor=NE, padx='20')
 
-joinVC = Button(root, text='Join VC', command=VCWIN, bg='#2f3136', borderwidth='0', fg='white')
+joinVC = Button(root, text='Join VC', command=VCWIN, bg=midgroundColor, borderwidth='0', fg='white')
 joinVC.place(bordermode=OUTSIDE)
 #joinVC.pack(side=TOP, anchor=NE, padx='20')
 
-sidePanel = Frame(root, width = 400, height= 53, borderwidth=0, bg = '#2f3136')
+sidePanel = Frame(root, width = 400, height= 53, borderwidth=0, bg = midgroundColor)
 sidePanel.pack(fill=Y, pady=20, side=LEFT)
 
-topBar = Frame(sidePanel, width = 400, bg = '#2f3136', borderwidth=0)
+topBar = Frame(sidePanel, width = 400, bg = midgroundColor, borderwidth=0)
 topBar.pack(side=TOP)
 
-dmLabel = Label(topBar, text="Direct Messages", bg='#2f3136', fg='white', font=myFont, width=20)
+dmLabel = Label(topBar, text="Direct Messages", bg= midgroundColor, fg='white', font=myFont, width=20)
 dmLabel.pack(side=LEFT)
 
-addDMThread = threading.Thread(target=addDm)
+#addDMThread = threading.Thread(target=addDm)
 
-addDmButton = Button(topBar, text="➕", bg='#2f3136', fg='white', font=myFont, borderwidth=0, activebackground='#2f3136', command=addDMThread.start)
+addDmButton = Button(topBar, text="➕", bg=midgroundColor, fg='white', font=myFont, borderwidth=0, activebackground=midgroundColor, command=addDm)
 addDmButton.pack(side=RIGHT)
 
-text = Text(root, width = 500, height = 53, borderwidth = '0', bg = '#2f3136', fg = 'white', yscrollcommand=text_scroll.set, font=reciveFont, wrap=tk.WORD) 
+text = Text(root, width = 500, height = 53, borderwidth = '0', bg = midgroundColor, fg = 'white', yscrollcommand=text_scroll.set, font=reciveFont, wrap=tk.WORD) 
 text.config(state='disabled') 
 text.yview('end')
 text.pack(fill=BOTH, expand=True, padx=20, pady=20)  
@@ -1083,10 +1087,10 @@ def clearText():
 
 myImage2 = ImageTk.PhotoImage(Image.open('Images/sendButton.png')) #send button icon
 
-message2 = Entry(GUI, width=10, borderwidth='0', bg = '#2f3136', fg = 'white', font=sendFont)
+message2 = Entry(GUI, width=10, borderwidth='0', bg = midgroundColor, fg = 'white', font=sendFont)
 message2.pack(side=LEFT,)
 
-e = Entry(GUI, width= 100, borderwidth = '0', bg = '#2f3136', fg = 'white', font=sendFont) 
+e = Entry(GUI, width= 100, borderwidth = '0', bg = midgroundColor, fg = 'white', font=sendFont) 
 e.pack(side=LEFT, fill=X, expand=True, padx=20) 
 e.focus_set()
 
