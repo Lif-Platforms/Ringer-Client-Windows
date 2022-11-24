@@ -1,7 +1,6 @@
 #imports
 import socket
 import threading
-import socket
 from tkinter import* 
 import tkinter as tk 
 import tkinter.font as font 
@@ -14,9 +13,11 @@ from urllib.request import Request, urlopen
 from random import randint
 from playsound import playsound
 import Packages.passwordHasher as passwordHasher
+import Packages.login as ringerLogin
 import re
 import time
 import customtkinter
+from customtkinter import *
 
 
 global serverIp #global variable for the server ip
@@ -291,7 +292,7 @@ def LOGIN():
         audioPlayed = True
 
     def resetAccount():
-        reset = tk.Tk()
+        reset = Toplevel()
         reset.geometry("500x500")
         reset.config(background='#1e1e1e')
         reset.resizable(False,False)
@@ -432,9 +433,7 @@ def LOGIN():
         submit.pack(pady='10', padx='5')
 
         #reset.protocol("WM_DELETE_WINDOW", on_closing) 
-        reset.mainloop()
-
-
+        
     def Connect(): #handles connecting and logging into the server
         global client
         global attempts
@@ -442,45 +441,22 @@ def LOGIN():
         try: 
             client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             client.connect((serverIp, 20200)) 
-            while True:
-                Message = client.recv(1024).decode('ascii')
-                print(Message)
-                
-                if Message == 'LOGIN':
-                    client.send("LIF_LOGIN".encode('ascii'))
-                    print('lif login')
+            loginStatus = ringerLogin.login(username=nickname, password=passwrd, client=client)
 
-                if Message == 'USERNAME':
-                    client.send(nickname.encode('ascii'))
-                    print(nickname)
+            if loginStatus == "Success":
+                print("login Successful")
+                SubmitNick.config(bg="green", text="Success ✔️")
+                #playsound("Sounds/Ringer Welcome Login.wav")
+                login.destroy()
 
-                if Message == 'PASSWORD':
-                    password = passwrd
-                   
-                    client.send(passwordHasher.get_initial_hash(password).encode('ascii')) 
+            if loginStatus == "Bad_Login":
+                 messagebox.showerror('Error', 'Username or password is incorrect.')
+                 SubmitNick.config(state=NORMAL)
 
-                if Message == 'LOGIN_GOOD':
-                    print("login Successful")
-                    SubmitNick.config(bg="green", text="Success ✔️")
-                    #playsound("Sounds/Ringer Welcome Login.wav")
-                    login.destroy()
-                    break
+            if loginStatus == "Banned":
+                messagebox.showerror("BANNED!", "You Have Been Banned From The Ringer Service")
+                SubmitNick.config(state=NORMAL)
 
-                if Message == 'BAD_LOGIN_ERROR':
-                    #response = messagebox.askquestion("Error", "Username or Password is Incorrect. Would You Like to reset Your Password?")
-                    messagebox.showerror('Error', 'Username or password is incorrect.')
-
-                    SubmitNick.config(state=NORMAL)
-                    #client.close()
-                    #if response == 'yes':
-                        #resetAccount()
-                        #break
-                    break
-
-                if Message == "BANNED!":
-                    messagebox.showerror("BANNED!", "You Have Been Banned From The Ringer Service")
-                    SubmitNick.config(state=NORMAL)
-                    break
         except Exception as e:
             messagebox.showerror("ERROR!", "Failed to connect to server!")
             print(e)
@@ -564,7 +540,6 @@ def LOGIN():
 
         def sendAccount(): #sends account to server
             def sendAccount2():
-                socket.setdefaulttimeout(5)
                 try:
                     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     client.connect((serverIp, 20200)) 
@@ -732,11 +707,6 @@ def LOGIN():
     forgotPassoword = Button(frame, bg='white', borderwidth=0, fg="blue", command=resetAccount, text="Forgot Password?", font= ('Helvetica 10 underline'))
     forgotPassoword.pack(pady='10')
 
-    
-
-    
-
-
     #statusThread = threading.Thread(target=statusBar, daemon=True)
     #statusThread.start()
 
@@ -751,45 +721,27 @@ def LOGIN():
 
     login.mainloop() 
 
-def Connect2(): #handles connecting and logging into the server
+def autoConnect(): #handles connecting and logging into the server
         global client
         print("conecting...")
         isBanned = False
         try: 
             client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             client.connect((serverIp, 20200)) 
-            while True:
-                Message = client.recv(1024).decode('ascii')
-                print(Message)
-                if Message == 'LOGIN':
-                    client.send("LIF_LOGIN".encode('ascii'))
-                    print('lif login')
+            autoLoginStatus = ringerLogin.login(username=nickname, password=passwrd, client=client)
 
-                if Message == 'USERNAME':
-                    client.send(nickname.encode('ascii'))
-                    print(nickname)
+            if autoLoginStatus == "Success":
+                pass
+            
+            if autoLoginStatus == "Bad_Login":
+                messagebox.showerror("ERROR!", "Username or password is incorrect!")
+                LOGIN()
 
-                if Message == 'PASSWORD':
-                    password = passwrd
-                    
-                    client.send(passwordHasher.get_initial_hash(password).encode('ascii')) 
-
-                if Message == 'LOGIN_GOOD':
-                    print("login Sucsessful")
-                    break
-        
-                if Message == 'BAD_LOGIN_ERROR':
-                    messagebox.showerror("ERROR!", "Username or password is incorrect!")
-                    LOGIN()
-                    break
-                if Message == "BANNED!":
-                    isBanned = True
-                    break
-
-            if isBanned == True:
+            if autoLoginStatus == "Banned":
+                isBanned = True
                 messagebox.showerror("BANNED!", "You Have Been Banned From The Ringer Service")
                 sys.exit()
-                
+
         except:
             ErrorWindow = Tk()
             ErrorWindow.geometry("500x600")
@@ -831,7 +783,7 @@ if infoCheck == 2:
     nickname = displayName
     passwrd = passwordCheck
     print("logging in...")
-    Connect2()#Handles connections outside of the login window.
+    autoConnect()#Handles connections outside of the login window.
 
 else: 
     LOGIN()#login window
@@ -871,7 +823,7 @@ if outdated == True:
     sys.exit()
 
 
-root = Tk() #main window for sending messages
+root = customtkinter.CTk() #main window for sending messages
 
 if audioPlayed == False:
         #playsound("Sounds/Ringer Startup.wav")
@@ -901,22 +853,8 @@ def reconnect():
     try: 
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client.connect((serverIp, 20200)) 
-        while True:
-            Message = client.recv(1024).decode('ascii')
-            if Message == 'LOGIN':
-                client.send(nickname.encode('ascii'))
-                print(nickname)
-
-            if Message == 'DISPLAY':
-                client.send(display.encode('ascii'))
-                break
-
-            if Message == 'BAD_LOGIN_ERROR':
-                messagebox.showinfo("ERROR!", "Username or password is incorrect! Please restart Ringer and log in again!")
-                break
-            if Message == "BANNED!":
-                messagebox.showerror("BANNED!", "You Have Been Banned From The Ringer Service")
-                break
+        ringerLogin.login(username=nickname, password=passwrd, client=client)
+    
     except:
         reconnect()
     root.title(windowTitle)
@@ -998,8 +936,8 @@ myFont = font.Font(family='Arial')
 GUI = Frame(root, bg=bgColor)
 GUI.pack(side=BOTTOM, fill=BOTH, expand=True, pady=20)
 
-text_scroll = Scrollbar(root) 
-text_scroll.pack(side=RIGHT, fill=Y, pady=10) 
+text_scroll = customtkinter.CTkScrollbar(root) 
+text_scroll.pack(side=RIGHT, fill=Y, pady=20) 
 
 logOut = Button(root, text="Logout", command=LogOut, bg=midgroundColor, borderwidth='0', fg='white')
 logOut.pack(side=TOP, anchor=NE, padx='20')
@@ -1027,7 +965,7 @@ text.config(state='disabled')
 text.yview('end')
 text.pack(fill=BOTH, expand=True, padx=20, pady=20)  
 
-text_scroll.config(command=text.yview)
+text_scroll.configure(command=text.yview)
 
 global myimage
 myimage = PhotoImage(file="Images/Ringer-Bot-Small.png")
