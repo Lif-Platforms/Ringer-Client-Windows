@@ -281,14 +281,14 @@ if os.path.isfile("First-Time-Use.txt"):
     welcomeWindow()
 
 def LOGIN():
-    login = tk.Tk()  
+    login = CTk()  
     login.focus()
     global attempts
     attempts = 0
     global audioPlayed
 
     if audioPlayed == False:
-        playsound('Sounds/Ringer Startup.wav')
+        #playsound("Sounds/Ringer Startup.wav")
         audioPlayed = True
 
     def resetAccount():
@@ -299,7 +299,7 @@ def LOGIN():
         reset.title("Reset Your Account")
         reset.iconbitmap("Icons/Ringer-Icon.ico")
 
-        resetLabel = Label(reset, bg='#1e1e1e', text='Please Enter Your Username And Email', fg='white', font=myFont)
+        resetLabel = Label(reset, bg='#1e1e1e', text='Please Enter Your Username And Email', fg='white', font="Arial 15 bold")
         resetLabel.pack()
 
         username = Entry(reset, width='50', borderwidth='0')
@@ -445,17 +445,17 @@ def LOGIN():
 
             if loginStatus == "Success":
                 print("login Successful")
-                SubmitNick.config(bg="green", text="Success ✔️")
+                SubmitNick.configure(text="Success ✔️")
                 #playsound("Sounds/Ringer Welcome Login.wav")
                 login.destroy()
 
             if loginStatus == "Bad_Login":
                  messagebox.showerror('Error', 'Username or password is incorrect.')
-                 SubmitNick.config(state=NORMAL)
+                 SubmitNick.configure(state=NORMAL)
 
             if loginStatus == "Banned":
                 messagebox.showerror("BANNED!", "You Have Been Banned From The Ringer Service")
-                SubmitNick.config(state=NORMAL)
+                SubmitNick.configure(state=NORMAL)
 
         except Exception as e:
             messagebox.showerror("ERROR!", "Failed to connect to server!")
@@ -510,7 +510,7 @@ def LOGIN():
     def CreateAccount(): #deals with creating accounts
         createAccount = Toplevel()
         createAccount.geometry("500x400")
-        createAccount.configure(background="orange")
+        createAccount.configure(background="#202020")
         createAccount.iconbitmap("Icons/Ringer-Icon.ico")
         createAccount.title('Ringer | Create Account')
         createAccount.resizable(False, False)
@@ -586,7 +586,7 @@ def LOGIN():
             else:
                 sendAccount2()
             
-        headerLabel = Label(createAccount, text='Create Account', bg='orange', fg='white', font=StartFont)
+        headerLabel = Label(createAccount, text='Create Account', bg='#202020', fg='white', font=StartFont)
         headerLabel.pack(side=TOP)
         headerLabel.focus_set()
 
@@ -617,7 +617,7 @@ def LOGIN():
         nickname = user.get()
         print(nickname)
         passwrd = password.get()  
-        SubmitNick.config(state=DISABLED)
+        SubmitNick.configure(state=DISABLED)
 
         if not os.path.isdir(os.path.expanduser('~') + "\AppData\Roaming\RingerLoginData"):
             os.mkdir(os.path.expanduser('~') + "\AppData\Roaming\RingerLoginData")
@@ -637,7 +637,7 @@ def LOGIN():
 
     def enterPassword(): 
         password.delete('0', 'end')
-        password.config(show="*")
+        password.configure(show="•")
 
 
     global username
@@ -645,23 +645,23 @@ def LOGIN():
     myFont = font.Font(family='Arial', weight=font.BOLD, size=25)
     anounceFont = font.Font(family='Arial', weight=font.BOLD)
 
-    frame = Frame(c, bg="white", width=100)
+    frame = Frame(c, bg="#202020", width=100)
     frame.pack(side=LEFT, fill=Y)
 
     myImage = ImageTk.PhotoImage(Image.open('Images/Ringer-Bot.png'))
 
-    #Ringer = Label(frame, bg='#36393f', image=myImage)
+    #Ringer = Label(frame, bg='#202020', image=myImage)
     #Ringer.pack(side=TOP, pady=20, padx=190) 
 
-    welcome = Label(frame, text="Login With Lif", bg='white', font=myFont, fg='orange')
+    welcome = Label(frame, text="Login With Lif", bg='#202020', font=myFont, fg='orange')
     welcome.pack(padx=230, pady=50)
 
     var = IntVar()
     infoCheck = IntVar()
     infoCheck = 0
 
-    user = Entry(frame, width = 50, borderwidth = 0, bg = 'white', fg = 'black', highlightthickness=2) 
-    user.config(highlightbackground = "orange", highlightcolor= "orange")
+    user = customtkinter.CTkEntry(frame, width= 350, border_width = 2) 
+    #user.config(highlightbackground = "orange", highlightcolor= "orange")
     user.pack(side=TOP, pady= 10, padx=20) 
     if os.path.isfile(os.path.expanduser('~') + "\AppData\Roaming\RingerLoginData\Display_name.txt"):
         f = open(os.path.expanduser('~') + "\AppData\Roaming\RingerLoginData\Display_name.txt", "r")
@@ -672,12 +672,12 @@ def LOGIN():
         user.insert(0, 'username')
     user.bind("<FocusIn>", lambda args: user.delete('0', 'end')) 
 
-    password = Entry(frame, width = 50, borderwidth = '0', bg = 'white', fg = 'black', highlightthickness=2) 
-    password.config(highlightbackground = "orange", highlightcolor= "orange")
+    password = customtkinter.CTkEntry(frame, width = 350, border_width= 2) 
+    #password.configure(highlightbackground = "orange", highlightcolor= "orange")
     password.pack(side=TOP, pady= 10, padx=20) 
     if os.path.isfile(os.path.expanduser('~') + "\AppData\Roaming\RingerLoginData\Super_Secret_Password.txt"):
         f = open(os.path.expanduser('~') + "\AppData\Roaming\RingerLoginData\Super_Secret_Password.txt", "r")
-        password.config(show="*")
+        password.configure(show="*")
         password.insert(0, f.read())
         f.close()
         infoCheck = infoCheck + 1
@@ -685,27 +685,32 @@ def LOGIN():
         password.insert(0, 'password')
     password.bind("<FocusIn>", (lambda event: enterPassword()))
         
-    #checkbox = Checkbutton(frame, text="Remember Me", variable=var, bg='#36393f', activebackground='#36393f', onvalue=1, offvalue=0, fg='orange', borderwidth=0)
+    #checkbox = Checkbutton(frame, text="Remember Me", variable=var, bg='#ffb85c', activebackground='#36393f', onvalue=1, offvalue=0, fg='orange', borderwidth=0)
     #checkbox.pack(side=BOTTOM)
 
     #if infoCheck == 2:
         #checkbox.select()
         #print(var.get())
 
-    #label = Label(frame, text="     ", bg='#36393f', fg='white')
+    #label = Label(frame, text="     ", bg='#ffcb7e', fg='white')
     #label.pack(side=BOTTOM)
 
-    SubmitNick = Button(frame, bg='white', text='Login', borderwidth='0',command=Getnick)  
+    SubmitNick = customtkinter.CTkButton(frame, text='Login', border_width=0, command=Getnick, fg_color='orange', text_font="Arial 15 bold", hover_color="#ffb85c", corner_radius=10)  
     SubmitNick.pack(pady='10') 
 
-    signUp = Label(c, text="New Here? \n Sign Up!")
-    signUp.pack()
+    Createaccount = customtkinter.CTkButton(c, text='Create Account', border_width=0, command=CreateAccount, bg_color='#ffcb7e', fg_color="white", text_color='black', corner_radius=8, hover_color='#e7e7e7')
+    Createaccount.pack(pady=160) 
 
-    Createaccount = Button(c, bg='white', text='Create Account', borderwidth='0', command=CreateAccount)
-    Createaccount.pack() 
+    c.create_text(850, 100, text="New Here? \n Sign Up!", fill="white", font=('Arial 20 bold'))
+    c.pack(side=RIGHT)
 
-    forgotPassoword = Button(frame, bg='white', borderwidth=0, fg="blue", command=resetAccount, text="Forgot Password?", font= ('Helvetica 10 underline'))
+    forgotPassoword = Button(frame, bg='#202020', borderwidth=0, fg="cyan", command=resetAccount, text="Forgot Password?", font= ('Helvetica 10 underline'), activebackground='#202020')
     forgotPassoword.pack(pady='10')
+
+    lifLogoImage = ImageTk.PhotoImage(Image.open("Images/LifLogo.png"))
+
+    lifLogo= Label(frame,image= lifLogoImage, bg='#202020')
+    lifLogo.pack(pady=60)
 
     #statusThread = threading.Thread(target=statusBar, daemon=True)
     #statusThread.start()
@@ -713,12 +718,10 @@ def LOGIN():
     def on_closing(): #handles closing the software
         login.destroy()
         sys.exit() 
-
+    
     login.bind('<Return>', (lambda event: Getnick()))
     login.resizable(False, False) 
     login.protocol("WM_DELETE_WINDOW", on_closing)  
-
-
     login.mainloop() 
 
 def autoConnect(): #handles connecting and logging into the server
@@ -942,8 +945,8 @@ text_scroll.pack(side=RIGHT, fill=Y, pady=20)
 logOut = Button(root, text="Logout", command=LogOut, bg=midgroundColor, borderwidth='0', fg='white')
 logOut.pack(side=TOP, anchor=NE, padx='20')
 
-joinVC = Button(root, text='Join VC', command=VCWIN, bg=midgroundColor, borderwidth='0', fg='white')
-joinVC.place(bordermode=OUTSIDE)
+#joinVC = Button(root, text='Join VC', command=VCWIN, bg=midgroundColor, borderwidth='0', fg='white')
+#joinVC.place(bordermode=OUTSIDE)
 #joinVC.pack(side=TOP, anchor=NE, padx='20')
 
 sidePanel = Frame(root, width = 400, height= 53, borderwidth=0, bg = midgroundColor)
