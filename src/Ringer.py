@@ -19,12 +19,18 @@ import time
 import customtkinter
 from customtkinter import *
 
-
+#global variables 
 global serverIp #global variable for the server ip
 serverIp ="127.0.0.1" 
 
 global recoveryIp #ip address for the recovery server. Recovery server responsible for the "forget password" functionality 
 recoveryIp = "127.0.0.1" 
+
+global isRecoveryWindowOpen
+isRecoveryWindowOpen = False
+
+global isCreateAccountWindowOpen
+isCreateAccountWindowOpen = False
 
 print("import complete")
 print(sys.executable)
@@ -460,7 +466,7 @@ def LOGIN():
         except Exception as e:
             messagebox.showerror("ERROR!", "Failed to connect to server!")
             print(e)
-            SubmitNick.config(state=NORMAL)
+            SubmitNick.configure(state=NORMAL)
 
     bg = PhotoImage(file="Images/login_bg.png")
 
@@ -508,108 +514,119 @@ def LOGIN():
 
 
     def CreateAccount(): #deals with creating accounts
-        createAccount = Toplevel()
-        createAccount.geometry("500x400")
-        createAccount.configure(background="#202020")
-        createAccount.iconbitmap("Icons/Ringer-Icon.ico")
-        createAccount.title('Ringer | Create Account')
-        createAccount.resizable(False, False)
-        
-
-        def enterPassword2(): 
-            passwordinput.delete('0', 'end')
-            passwordinput.config(show="*")
-
-        def gererateUser(): #generates a random username
-            messagebox.showerror("Feature Removed!", "Due to issues with this feature it has been removed and will return in a future update.")
-            createAccount.focus()
-            '''
-            url="https://svnweb.freebsd.org/csrg/share/dict/words?revision=61569&view=co"
-            req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-
-            web_byte = urlopen(req).read()
-
-            webpage = web_byte.decode('utf-8')
-            words = webpage.split()
-
-            random_number = randint(0, len(words))
-            username.delete('0', 'end')
-            username.insert(0, randint(100, 999))
-            username.insert(0, words[random_number])
-            '''
-
-        def sendAccount(): #sends account to server
-            def sendAccount2():
-                try:
-                    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    client.connect((serverIp, 20200)) 
-                    print('conected')
-                    client.send("CREATEACCOUNT".encode('ascii'))
-                    print('requested account creation')
-                except:
-                    messagebox.showerror("Error", "Could not connect to server!")
-                    createAccount.destroy()
-                while True:
-                    Message = client.recv(1024).decode('ascii')
-                    if Message == 'ACCOUNTCREATED':
-                        messagebox.showinfo("Success!", "Account successfully created!")
-                        createAccount.destroy()
-                        break
-
-                    if Message == 'USERNAME?':
-                        client.send(username.get().encode('ascii'))
-                        print('sent username')
-
-                    if Message == 'PASSWORD?':
-                        password = passwordinput.get()
-                        print('got password')
-                        # adding 5gz as password
-                       
-                        client.send(passwordHasher.get_initial_hash(password).encode('ascii')) 
-
-                    if Message == 'EMAIL?':
-                        client.send(checkEmail.encode('ascii'))
-                        print('sent email')
-
-                    if Message == 'ERROR_ACOUNT_EXSISTING':
-                        print(Message)
-                        client.close()
-                        messagebox.showerror("Opps!", "Account already exsists!")
-                        createAccount.focus()
-                        break
-
-            checkEmail = emailInput.get()
-
-            pat = "^[a-zA-Z0-9-_]+@[a-zA-Z0-9]+\.[a-z]{1,3}$"
-            if re.match(pat,checkEmail):
-                messagebox.showerror("Error", "Provided Email is Invalid!")
-            else:
-                sendAccount2()
+        global isCreateAccountWindowOpen
+        if isCreateAccountWindowOpen == False:
+            isCreateAccountWindowOpen = True
+            createAccount = Toplevel()
+            createAccount.geometry("500x400")
+            createAccount.configure(background="#202020")
+            createAccount.iconbitmap("Icons/Ringer-Icon.ico")
+            createAccount.title('Ringer | Create Account')
+            createAccount.resizable(False, False)
             
-        headerLabel = Label(createAccount, text='Create Account', bg='#202020', fg='white', font=StartFont)
-        headerLabel.pack(side=TOP)
-        headerLabel.focus_set()
 
-        username = Entry(createAccount, width='50', borderwidth='0')
-        username.pack(pady='10', padx='5')
-        username.insert(0, 'Username')
-        username.bind("<FocusIn>", lambda args: username.delete('0', 'end'))    
+            def enterPassword2(): 
+                passwordinput.delete('0', 'end')
+                passwordinput.config(show="*")
 
-        magicUsername = Button(createAccount, command=gererateUser, text='Magic Username', borderwidth='0', bg='white')
-        magicUsername.pack(padx='5')
+            def gererateUser(): #generates a random username
+                messagebox.showerror("Feature Removed!", "Due to issues with this feature it has been removed and will return in a future update.")
+                createAccount.focus()
+                '''
+                url="https://svnweb.freebsd.org/csrg/share/dict/words?revision=61569&view=co"
+                req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
 
-        emailInput = Entry(createAccount, width='50', borderwidth='0')
-        emailInput.pack(pady='10', padx='5')
-        emailInput.insert(0, 'Email')
-        emailInput.bind("<FocusIn>", lambda args: emailInput.delete('0', 'end'))    
+                web_byte = urlopen(req).read()
 
-        passwordinput = Entry(createAccount, width='50', borderwidth='0')
-        passwordinput.pack(pady='10', padx='5')
-        passwordinput.insert(0, 'Password')
-        passwordinput.bind("<FocusIn>", (lambda event: enterPassword2()))
+                webpage = web_byte.decode('utf-8')
+                words = webpage.split()
 
-        submitAccount = Button(createAccount, borderwidth='0', text='Create', command=sendAccount, bg='white')
-        submitAccount.pack(pady='10')
+                random_number = randint(0, len(words))
+                username.delete('0', 'end')
+                username.insert(0, randint(100, 999))
+                username.insert(0, words[random_number])
+                '''
+
+            def sendAccount(): #sends account to server
+                def sendAccount2():
+                    try:
+                        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                        client.connect((serverIp, 20200)) 
+                        print('conected')
+                        client.send("CREATEACCOUNT".encode('ascii'))
+                        print('requested account creation')
+                    except:
+                        messagebox.showerror("Error", "Could not connect to server!")
+                        createAccount.destroy()
+                    while True:
+                        Message = client.recv(1024).decode('ascii')
+                        if Message == 'ACCOUNTCREATED':
+                            messagebox.showinfo("Success!", "Account successfully created!")
+                            createAccount.destroy()
+                            break
+
+                        if Message == 'USERNAME?':
+                            client.send(username.get().encode('ascii'))
+                            print('sent username')
+
+                        if Message == 'PASSWORD?':
+                            password = passwordinput.get()
+                            print('got password')
+                            # adding 5gz as password
+                        
+                            client.send(passwordHasher.get_initial_hash(password).encode('ascii')) 
+
+                        if Message == 'EMAIL?':
+                            client.send(checkEmail.encode('ascii'))
+                            print('sent email')
+
+                        if Message == 'ERROR_ACOUNT_EXSISTING':
+                            print(Message)
+                            client.close()
+                            messagebox.showerror("Opps!", "Account already exsists!")
+                            createAccount.focus()
+                            break
+
+                checkEmail = emailInput.get()
+
+                pat = "^[a-zA-Z0-9-_]+@[a-zA-Z0-9]+\.[a-z]{1,3}$"
+                if re.match(pat,checkEmail):
+                    messagebox.showerror("Error", "Provided Email is Invalid!")    
+                else:
+                    sendAccount2()
+                
+            headerLabel = Label(createAccount, text='Create Account', bg='#202020', fg='white', font=StartFont)
+            headerLabel.pack(side=TOP)
+            headerLabel.focus_set()
+
+            username = Entry(createAccount, width='50', borderwidth='0')
+            username.pack(pady='10', padx='5')
+            username.insert(0, 'Username')
+            username.bind("<FocusIn>", lambda args: username.delete('0', 'end'))    
+
+            magicUsername = Button(createAccount, command=gererateUser, text='Magic Username', borderwidth='0', bg='white')
+            magicUsername.pack(padx='5')
+
+            emailInput = Entry(createAccount, width='50', borderwidth='0')
+            emailInput.pack(pady='10', padx='5')
+            emailInput.insert(0, 'Email')
+            emailInput.bind("<FocusIn>", lambda args: emailInput.delete('0', 'end'))    
+
+            passwordinput = Entry(createAccount, width='50', borderwidth='0')
+            passwordinput.pack(pady='10', padx='5')
+            passwordinput.insert(0, 'Password')
+            passwordinput.bind("<FocusIn>", (lambda event: enterPassword2()))
+
+            submitAccount = Button(createAccount, borderwidth='0', text='Create', command=sendAccount, bg='white')
+            submitAccount.pack(pady='10')
+
+            def on_closing():
+                global isCreateAccountWindowOpen
+                isCreateAccountWindowOpen = False
+                createAccount.destroy() 
+
+            createAccount.protocol("WM_DELETE_WINDOW", on_closing) 
+
 
     def Getnick(): #gets the login credentials
         global nickname
@@ -704,7 +721,7 @@ def LOGIN():
     c.create_text(850, 100, text="New Here? \n Sign Up!", fill="white", font=('Arial 20 bold'))
     c.pack(side=RIGHT)
 
-    forgotPassoword = Button(frame, bg='#202020', borderwidth=0, fg="cyan", command=resetAccount, text="Forgot Password?", font= ('Helvetica 10 underline'), activebackground='#202020')
+    forgotPassoword = Button(frame, bg='#202020', borderwidth=0, fg="cyan", command=resetAccount, text="Forgot Password?", font= ('Helvetica 10 underline'), activebackground='#202020', activeforeground='white')
     forgotPassoword.pack(pady='10')
 
     lifLogoImage = ImageTk.PhotoImage(Image.open("Images/LifLogo.png"))
@@ -923,13 +940,13 @@ def addDm():
                 addDmWindow.destroy() 
                 break
 
-    dmTitle = Label(addDmWindow, text="Add a Conversation", bg=bgColor, fg='white')
+    dmTitle = Label(addDmWindow, text="Add a Conversation", bg=bgColor, fg='white', font="Arial 20 bold")
     dmTitle.pack()
 
-    dmEntry = Entry(addDmWindow, width=20, borderwidth=0)
+    dmEntry = customtkinter.CTkEntry(addDmWindow, width=150, border_width=2)
     dmEntry.pack(padx=5, pady=10)
 
-    sendDm = Button(addDmWindow, text="Add", command=send, borderwidth=0)
+    sendDm = customtkinter.CTkButton(addDmWindow, text="Add", command=send, border_width=0, fg_color='orange', text_color="white", hover_color="#ffb34f", text_font="Arial 10 bold")
     sendDm.pack()
 
     addDmWindow.resizable(False, False)
