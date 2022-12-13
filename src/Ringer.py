@@ -54,7 +54,7 @@ createAccountOpen = False
 def welcomeWindow(): #this window is triggered when ringer is installed for the first time
     global audioPlayed
     if audioPlayed == False:
-        playsound('Sounds/Ringer Startup.wav')
+        #playsound('Sounds/Ringer Startup.wav')
         audioPlayed = True
 
     welcome = Tk()
@@ -1012,7 +1012,8 @@ def recive():
                 #playsound('RingerNotification.wav')
             '''
 
-        except: 
+        except Exception as e: 
+            print(e)
             reconnect()
 
 def write(): 
