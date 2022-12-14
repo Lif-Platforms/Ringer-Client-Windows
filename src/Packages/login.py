@@ -1,6 +1,6 @@
 # -----------------------
-# package info:
-# this package is for logging into the server
+# package info: this package is for logging into the server
+# author: Superior126
 #------------------------
 import Packages.passwordHasher as passwordHasher
 

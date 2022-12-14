@@ -849,6 +849,9 @@ if audioPlayed == False:
         #playsound("Sounds/Ringer Startup.wav")
         audioPlayed = True
 
+#window variables
+contacts = [] 
+
 #configuring root
 windowTitle = f"Ringer (Beta v{ringerVersion})"
 root.state("zoomed")
@@ -865,6 +868,23 @@ midgroundColor = "#141414" #color for ui elements like frames and buttons
 fgColor = "white"
 
 Online = True
+
+def retrieveContacts(nickname, passwrd): #handles retrieving contacts from server. started in a thread so the window can continue normally 
+    print("connecting to manager server...")
+    managerServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # defines client
+    managerServer.connect((serverIp, 20205)) 
+    print("connected!")
+    ringerLogin.login(username=nickname, password=passwrd, client=managerServer) #uses the ringer login package(login.py) to log into the account manager server
+    print("logged in")
+
+    managerServer.send("LIST_DM".encode('ascii'))
+    print("requested dm list")
+    
+    contacts = managerServer.recv(1024).decode('ascii')
+    print(contacts)
+
+contactsThread = threading.Thread(target=retrieveContacts, args=(nickname, passwrd))
+contactsThread.start()
 
 def reconnect():
     global client
