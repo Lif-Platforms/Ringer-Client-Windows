@@ -22,3 +22,9 @@ Ringers server code is located in another repository: https://github.com/Superio
  3. If you don't have a ringer account, enter your information and click "Create". If you get a "Failed to connect to server" message, close the software  and try again later. 
  **NOTE: Use unique a unique password. Passwords are viewable by the owner of the ringer server.** 
  4. After you create your account, you will see a "Account Created" screen. Click the "Lets Go" button and your all set. 
+
+#  Credits
+ - Superior126
+ 
+ # How To Contribute
+ In the projects setion there is a project that has a list of things that need to be worked on and their status. Working on the stuff in the project would be the best way to contribute. 
