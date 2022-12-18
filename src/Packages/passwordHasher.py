@@ -1,3 +1,7 @@
+# -----------------------
+# package info: this package is for hashing passwords before sending them to the server 
+# author: Superior126
+#------------------------
 import hashlib
 
 def get_initial_hash(password):

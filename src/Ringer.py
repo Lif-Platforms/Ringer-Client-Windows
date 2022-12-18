@@ -54,7 +54,7 @@ createAccountOpen = False
 def welcomeWindow(): #this window is triggered when ringer is installed for the first time
     global audioPlayed
     if audioPlayed == False:
-        #playsound('Sounds/Ringer Startup.wav')
+        playsound(r'Sounds\\RingerStartup.wav')
         audioPlayed = True
 
     welcome = Tk()
@@ -286,6 +286,7 @@ def welcomeWindow(): #this window is triggered when ringer is installed for the 
 if os.path.isfile("First-Time-Use.txt"):
     welcomeWindow()
 
+
 def LOGIN():
     login = CTk()  
     login.focus()
@@ -294,7 +295,7 @@ def LOGIN():
     global audioPlayed
 
     if audioPlayed == False:
-        #playsound("Sounds/Ringer Startup.wav")
+        playsound(r"Sounds\\RingerStartup.wav")
         audioPlayed = True
 
     def resetAccount():
@@ -846,7 +847,7 @@ if outdated == True:
 root = customtkinter.CTk() #main window for sending messages
 
 if audioPlayed == False:
-        #playsound("Sounds/Ringer Startup.wav")
+        playsound(r"Sounds\\RingerStartup.wav")
         audioPlayed = True
 
 #window variables
