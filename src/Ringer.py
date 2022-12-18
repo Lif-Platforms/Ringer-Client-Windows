@@ -886,40 +886,6 @@ def retrieveContacts(nickname, passwrd): #handles retrieving contacts from serve
 #contactsThread = threading.Thread(target=retrieveContacts, args=(nickname, passwrd))
 #contactsThread.start()
 
-def updateContacts():
-    while True:
-        print("connecting to manager server...")
-        managerServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # defines client
-        managerServer.connect((serverIp, 20205)) 
-        print("connected!")
-        ringerLogin.login(username=nickname, password=passwrd, client=managerServer) #uses the ringer login package(login.py) to log into the account manager server
-        print("logged in")
-
-        managerServer.send("LIST_DM".encode('ascii'))
-        print("requested dm list")
-
-        contacts.clear()
-        
-        while True:
-            rcvContacts = managerServer.recv(1024).decode('ascii')
-            if rcvContacts == "DONE!":
-                break
-            else:
-                contacts.append(rcvContacts)
-        print(contacts)
-
-        for item in contactsFrame.winfo_children():
-            item.destroy()
-
-        for contact in contacts:
-            insertContact = Button(contactsFrame, text=contact)
-            insertContact.pack() 
-
-        time.sleep(5)
-
-updateContactsThread = threading.Thread(target=updateContacts, daemon=True)
-updateContactsThread.start() 
-
 def reconnect():
     global client
     print("conecting...")
@@ -1048,6 +1014,40 @@ global myimage
 myimage = PhotoImage(file="Images/Ringer-Bot-Small.png")
 
 print('phase 1 compleate')
+
+def updateContacts():
+    while True:
+        print("connecting to manager server...")
+        managerServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # defines client
+        managerServer.connect((serverIp, 20205)) 
+        print("connected!")
+        ringerLogin.login(username=nickname, password=passwrd, client=managerServer) #uses the ringer login package(login.py) to log into the account manager server
+        print("logged in")
+
+        managerServer.send("LIST_DM".encode('ascii'))
+        print("requested dm list")
+
+        contacts.clear()
+        
+        while True:
+            rcvContacts = managerServer.recv(1024).decode('ascii')
+            if rcvContacts == "DONE!":
+                break
+            else:
+                contacts.append(rcvContacts)
+        print(contacts)
+
+        for item in contactsFrame.winfo_children():
+            item.destroy()
+
+        for contact in contacts:
+            insertContact = Button(contactsFrame, text=contact)
+            insertContact.pack() 
+
+        time.sleep(5)
+
+updateContactsThread = threading.Thread(target=updateContacts, daemon=True)
+updateContactsThread.start() 
 
 def recive(): 
     global client
