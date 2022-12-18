@@ -852,6 +852,7 @@ if audioPlayed == False:
 
 #window variables
 contacts = [] 
+serverContacts = [] # Used to compare the server contacts with local contacts so it knows if it needs a refresh
 
 #configuring root
 windowTitle = f"Ringer (Beta v{ringerVersion})"
@@ -1002,7 +1003,7 @@ addDmButton = Button(topBar, text="➕", bg=midgroundColor, fg='white', font=myF
 addDmButton.pack(side=RIGHT)
 
 contactsFrame = Frame(sidePanel, width = 400, bg = midgroundColor, borderwidth=0) # frame where the contacts are placed
-contactsFrame.pack(pady=10)
+contactsFrame.pack(pady=20, side=TOP, anchor=NW, padx=5)
 
 text = Text(root, width = 500, height = 53, borderwidth = '0', bg = midgroundColor, fg = 'white', yscrollcommand=text_scroll.set, font=reciveFont, wrap=tk.WORD) 
 text.config(state='disabled') 
@@ -1017,33 +1018,60 @@ myimage = PhotoImage(file="Images/Ringer-Bot-Small.png")
 print('phase 1 compleate')
 
 def updateContacts():
-    while True:
-        print("connecting to manager server...")
-        managerServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # defines client
-        managerServer.connect((serverIp, 20205)) 
-        print("connected!")
-        ringerLogin.login(username=nickname, password=passwrd, client=managerServer) #uses the ringer login package(login.py) to log into the account manager server
-        print("logged in")
+    global contacts
+    global serverContacts
+    print("connecting to manager server...")
+    managerServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # defines client
+    managerServer.connect((serverIp, 20205)) 
+    print("connected!")
+    ringerLogin.login(username=nickname, password=passwrd, client=managerServer) #uses the ringer login package(login.py) to log into the account manager server
+    print("logged in")
+    firstRefresh = True
 
+    while True:
+        print("started refresh")
         managerServer.send("LIST_DM".encode('ascii'))
         print("requested dm list")
 
         contacts.clear()
+        serverContacts.clear() 
         
         while True:
             rcvContacts = managerServer.recv(1024).decode('ascii')
             if rcvContacts == "DONE!":
+                print("done")
                 break
             else:
-                contacts.append(rcvContacts)
+                serverContacts.append(rcvContacts)
+                print(rcvContacts)
+            time.sleep(0.001)
+        print(serverContacts)
         print(contacts)
 
-        for item in contactsFrame.winfo_children():
-            item.destroy()
+        refresh = False
 
-        for contact in contacts:
-            insertContact = Button(contactsFrame, text=contact)
-            insertContact.pack() 
+        print(len(serverContacts))
+        print(len(contacts))
+
+        if not len(serverContacts) == len(contacts):
+            refresh = True
+            contacts = serverContacts
+            print("refresh needed")
+
+        if firstRefresh == True:
+            refresh = True
+
+        if refresh == True:
+            print("refresh")
+            firstRefresh = False
+            for item in contactsFrame.winfo_children():
+                item.destroy()
+
+            for contact in contacts:
+                insertContact = Button(contactsFrame, text=contact, bg=midgroundColor, fg="white", borderwidth=0)
+                insertContact.pack(side=TOP, anchor=NW, pady=5)
+        else:
+            print("refresh not needed")
 
         time.sleep(5)
 
