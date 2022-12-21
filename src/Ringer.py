@@ -847,7 +847,7 @@ if outdated == True:
 root = customtkinter.CTk() #main window for sending messages
 
 if audioPlayed == False:
-        playsound(r"Sounds\\RingerStartup.wav")
+        #playsound(r"Sounds\\RingerStartup.wav")
         audioPlayed = True
 
 #window variables
@@ -1017,6 +1017,9 @@ myimage = PhotoImage(file="Images/Ringer-Bot-Small.png")
 
 print('phase 1 compleate')
 
+def loadContact(contact):
+    print(contact)
+
 def updateContacts():
     global contacts
     global serverContacts
@@ -1033,8 +1036,8 @@ def updateContacts():
         managerServer.send("LIST_DM".encode('ascii'))
         print("requested dm list")
 
-        contacts.clear()
         serverContacts.clear() 
+        contacts.clear()
         
         while True:
             rcvContacts = managerServer.recv(1024).decode('ascii')
@@ -1055,7 +1058,9 @@ def updateContacts():
 
         if not len(serverContacts) == len(contacts):
             refresh = True
-            contacts = serverContacts
+            
+            for i in serverContacts:
+                contacts.append(i) 
             print("refresh needed")
 
         if firstRefresh == True:
@@ -1068,7 +1073,7 @@ def updateContacts():
                 item.destroy()
 
             for contact in contacts:
-                insertContact = Button(contactsFrame, text=contact, bg=midgroundColor, fg="white", borderwidth=0)
+                insertContact = Button(contactsFrame, text=contact, bg=midgroundColor, fg="white", borderwidth=0, command=lambda: loadContact(contact))
                 insertContact.pack(side=TOP, anchor=NW, pady=5)
         else:
             print("refresh not needed")
@@ -1077,6 +1082,7 @@ def updateContacts():
 
 updateContactsThread = threading.Thread(target=updateContacts, daemon=True)
 updateContactsThread.start() 
+
 
 def recive(): 
     global client
