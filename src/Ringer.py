@@ -18,6 +18,7 @@ import re
 import time
 import customtkinter
 from customtkinter import *
+import json
 
 #global variables 
 global serverIp #global variable for the server ip
@@ -1033,20 +1034,22 @@ def updateContacts():
         managerServer.send("LIST_DM".encode('ascii'))
         print("requested dm list")
 
-        contacts.clear()
+        #contacts.clear()
         serverContacts.clear() 
         
-        while True:
-            rcvContacts = managerServer.recv(1024).decode('ascii')
-            if rcvContacts == "DONE!":
-                print("done")
-                break
-            else:
-                serverContacts.append(rcvContacts)
-                print(rcvContacts)
-            time.sleep(0.001)
+        
+        rcvContacts = json.loads(managerServer.recv(1024).decode('ascii'))
+
+        recivedContacts = rcvContacts['sentContacts']
+        
+        for i in recivedContacts:
+            serverContacts.append(i)
+
+        print(rcvContacts)
+            
         print(serverContacts)
         print(contacts)
+
 
         refresh = False
 
@@ -1055,7 +1058,9 @@ def updateContacts():
 
         if not len(serverContacts) == len(contacts):
             refresh = True
-            contacts = serverContacts
+            contacts.clear()
+            for i in serverContacts:
+                contacts.append(i)
             print("refresh needed")
 
         if firstRefresh == True:
@@ -1072,6 +1077,10 @@ def updateContacts():
                 insertContact.pack(side=TOP, anchor=NW, pady=5)
         else:
             print("refresh not needed")
+        exists = contactsFrame.winfo_children()
+        if len(serverContacts) == 0 and len(exists) == 0:
+            noContacts = Label(contactsFrame, text="Nothing to See Here!", bg=midgroundColor, fg="white")
+            noContacts.pack() 
 
         time.sleep(5)
 
