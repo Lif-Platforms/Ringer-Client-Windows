@@ -5,7 +5,7 @@ Ringer is a new messaging app for windows. Its currently in beta but lets work t
 
 # Server Code
 
-Ringers server code is located in another repository: https://github.com/Superior126/Ringer-Server
+Ringers server code is located in another repository: https://github.com/Lif-Platforms/Ringer-Server
 
 # Install Latest Stable Build
  1. Navigate to the main directory
