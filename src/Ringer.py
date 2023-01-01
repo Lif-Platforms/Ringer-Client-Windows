@@ -1018,8 +1018,8 @@ myimage = PhotoImage(file="Images/Ringer-Bot-Small.png")
 
 print('phase 1 compleate')
 
-def loadContact(contact):
-    print(contact)
+#used for identifying witch contact you selected when you click its button
+button_dict = {}
 
 def updateContacts():
     global contacts
@@ -1077,8 +1077,13 @@ def updateContacts():
                 item.destroy()
 
             for contact in contacts:
-                insertContact = Button(contactsFrame, text=contact, bg=midgroundColor, fg="white", borderwidth=0, command=lambda: loadContact(contact))
-                insertContact.pack(side=TOP, anchor=NW, pady=5)
+                #command when a contact is clicked
+                def loadContact(x = contact):
+                    print(x)
+
+                #adding the contact buttons
+                button_dict[contact] = Button(contactsFrame, text=contact, bg=midgroundColor, fg="white", borderwidth=0, command=loadContact)
+                button_dict[contact].pack(side=TOP, anchor=NW, pady=5)
         else:
             print("refresh not needed")
         exists = contactsFrame.winfo_children()
