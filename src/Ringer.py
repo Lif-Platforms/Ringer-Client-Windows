@@ -296,7 +296,10 @@ def LOGIN():
     global audioPlayed
 
     if audioPlayed == False:
-        playsound(r"Sounds\\RingerStartup.wav")
+        try:
+            playsound(r"Sounds\\RingerStartup.wav")
+        except:
+            pass
         audioPlayed = True
 
     def resetAccount():
@@ -1044,7 +1047,7 @@ def updateContacts():
         
         rcvContacts = json.loads(managerServer.recv(1024).decode('ascii'))
 
-        recivedContacts = rcvContacts['sentContacts']
+        recivedContacts = rcvContacts['contacts']
         
         for i in recivedContacts:
             serverContacts.append(i)
