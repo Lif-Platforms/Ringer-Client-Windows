@@ -1124,59 +1124,60 @@ def updateContacts():
     print("logged in")
 
     while True:
-        print("started refresh")
-        managerServer.send("LIST_DM".encode('ascii'))
-        print("requested dm list")
+        try:
+            print("started refresh")
+            managerServer.send("LIST_DM".encode('ascii'))
+            print("requested dm list")
 
-        serverContacts.clear() 
-        contacts.clear()
+            serverContacts.clear() 
         
-        
-        rcvContacts = json.loads(managerServer.recv(1024).decode('ascii'))
+            rcvContacts = json.loads(managerServer.recv(1024).decode('ascii'))
 
-        recivedContacts = rcvContacts['contacts']
-        
-        for i in recivedContacts:
-            serverContacts.append(i)
-
-        print(rcvContacts)
+            recivedContacts = rcvContacts['contacts']
             
-        print(serverContacts)
-        print(contacts)
+            for i in recivedContacts:
+                serverContacts.append(i)
+
+            print(rcvContacts)
+                
+            print(serverContacts)
+            print(contacts)
 
 
-        refresh = False
+            refresh = False
 
-        print(len(serverContacts))
-        print(len(contacts))
+            print(len(serverContacts))
+            print(len(contacts))
 
-        if not len(serverContacts) == len(contacts):
-            refresh = True
-            contacts.clear()
-            for i in serverContacts:
-                contacts.append(i)
-            print("refresh needed")
+            if not len(serverContacts) == len(contacts):
+                refresh = True
+                contacts.clear()
+                for i in serverContacts:
+                    contacts.append(i)
+                print("refresh needed")
 
-        if refresh == True:
-            print("refresh")
-            #deletes all contacts from sidebar during a refresh 
-            for item in contactsFrame.winfo_children():
-                item.destroy()
+            if refresh == True:
+                print("refresh")
+                #deletes all contacts from sidebar during a refresh 
+                for item in contactsFrame.winfo_children():
+                    item.destroy()
 
-            for contact in contacts:
-                #command when a contact is clicked
-                def loadContact(x = contact):
-                    print(x)
+                for contact in contacts:
+                    #command when a contact is clicked
+                    def loadContact(x = contact):
+                        print(x)
 
-                #adding the contact buttons
-                button_dict[contact] = Button(contactsFrame, text=contact, bg=midgroundColor, fg="white", borderwidth=0, command=loadContact)
-                button_dict[contact].pack(side=TOP, anchor=NW, pady=5)
-        else:
-            print("refresh not needed")
-        exists = contactsFrame.winfo_children()
-        if len(serverContacts) == 0 and len(exists) == 0:
-            noContacts = Label(contactsFrame, text="Nothing to See Here!", bg=midgroundColor, fg="white")
-            noContacts.pack() 
+                    #adding the contact buttons
+                    button_dict[contact] = Button(contactsFrame, text=contact, bg=midgroundColor, fg="white", borderwidth=0, command=loadContact)
+                    button_dict[contact].pack(side=TOP, anchor=NW, pady=5)
+            else:
+                print("refresh not needed")
+            exists = contactsFrame.winfo_children()
+            if len(serverContacts) == 0 and len(exists) == 0:
+                noContacts = Label(contactsFrame, text="Nothing to See Here!", bg=midgroundColor, fg="white")
+                noContacts.pack(anchor=CENTER)
+        except:
+            pass 
 
         time.sleep(5)
 
