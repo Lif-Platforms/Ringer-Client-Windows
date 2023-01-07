@@ -992,23 +992,42 @@ logOut.pack(side=TOP, anchor=NE, padx='20')
 #joinVC.place(bordermode=OUTSIDE)
 #joinVC.pack(side=TOP, anchor=NE, padx='20')
 
+#sidebar where contacts are displayed
 sidePanel = Frame(root, width = 400, height= 53, borderwidth=0, bg = midgroundColor)
 sidePanel.pack(fill=Y, pady=20, side=LEFT)
 
+#frame for sidebar header 
 topBar = Frame(sidePanel, width = 400, bg = midgroundColor, borderwidth=0)
 topBar.pack(side=TOP)
 
+#header for contacts sidebar
 dmLabel = Label(topBar, text="Direct Messages", bg= midgroundColor, fg='white', font=myFont, width=20)
 dmLabel.pack(side=LEFT)
 
-#addDMThread = threading.Thread(target=addDm)
+#defines popup menu when add dm button is pressed
+addDmPopup = Menu(root, tearoff=0)
+addDmPopup.add_command(label="Add Dm", command=addDm)
+addDmPopup.add_command(label="Remove Dm")
 
-addDmButton = Button(topBar, text="➕", bg=midgroundColor, fg='white', font=myFont, borderwidth=0, activebackground=midgroundColor, command=addDm)
+#function that shows the popup
+def popupm(addDmButton):
+     try:         
+        x = addDmButton.winfo_rootx()
+        y = addDmButton.winfo_rooty() + 25
+        addDmPopup.tk_popup(x, y, 0)
+     finally:
+           addDmPopup.grab_release()
+
+#button for adding dms
+#also for removing dms as well 
+addDmButton = Button(topBar, text="•••", bg=midgroundColor, fg='white', font=myFont, borderwidth=0, activebackground=midgroundColor, command = lambda: popupm(addDmButton))
 addDmButton.pack(side=RIGHT)
 
-contactsFrame = Frame(sidePanel, width = 400, bg = midgroundColor, borderwidth=0) # frame where the contacts are placed
+# frame where the contacts are placed
+contactsFrame = Frame(sidePanel, width = 400, bg = midgroundColor, borderwidth=0) 
 contactsFrame.pack(pady=20, side=TOP, anchor=NW, padx=5)
 
+#main text area where messages are displayed
 text = Text(root, width = 500, height = 53, borderwidth = '0', bg = midgroundColor, fg = 'white', yscrollcommand=text_scroll.set, font=reciveFont, wrap=tk.WORD) 
 text.config(state='disabled') 
 text.yview('end')
@@ -1028,19 +1047,19 @@ def updateContacts():
     global contacts
     global serverContacts
     print("connecting to manager server...")
-    managerServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # defines client
+    # defines client
+    managerServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
     managerServer.connect((serverIp, 20205)) 
     print("connected!")
-    ringerLogin.login(username=nickname, password=passwrd, client=managerServer) #uses the ringer login package(login.py) to log into the account manager server
+    #uses the ringer login package(login.py) to log into the account manager server
+    ringerLogin.login(username=nickname, password=passwrd, client=managerServer) 
     print("logged in")
-    firstRefresh = True
 
     while True:
         print("started refresh")
         managerServer.send("LIST_DM".encode('ascii'))
         print("requested dm list")
 
-        #contacts.clear()
         serverContacts.clear() 
         contacts.clear()
         
@@ -1070,12 +1089,9 @@ def updateContacts():
                 contacts.append(i)
             print("refresh needed")
 
-        if firstRefresh == True:
-            refresh = True
-
         if refresh == True:
             print("refresh")
-            firstRefresh = False
+            #deletes all contacts from sidebar during a refresh 
             for item in contactsFrame.winfo_children():
                 item.destroy()
 
@@ -1096,6 +1112,8 @@ def updateContacts():
 
         time.sleep(5)
 
+#thread for updating the contacts in the side bar
+#refreshes every 5 seconds 
 updateContactsThread = threading.Thread(target=updateContacts, daemon=True)
 updateContactsThread.start() 
 
@@ -1124,6 +1142,8 @@ def recive():
             print(e)
             reconnect()
 
+#sends messages to the server
+#run when you press enter in the message entry 
 def write(): 
     global recviveMessage
     
@@ -1143,6 +1163,7 @@ def write():
         except:
             messagebox.showerror("ERROR!", "Failed To Send Message") 
 
+#this function is run on window close
 def on_closing():
     client.close()
     root.destroy() 
@@ -1152,8 +1173,11 @@ def on_closing():
 def clearText():
     e.delete('0', END)
 
-myImage2 = ImageTk.PhotoImage(Image.open('Images/sendButton.png')) #send button icon
+#send button icon (no longer used)
+myImage2 = ImageTk.PhotoImage(Image.open('Images/sendButton.png')) 
 
+#entry for entering the username you are sending a message to
+#this is temporary. will be replaced with the user panel
 message2 = Entry(GUI, width=10, borderwidth='0', bg = midgroundColor, fg = 'white', font=sendFont)
 message2.pack(side=LEFT,)
 
@@ -1167,16 +1191,18 @@ e.focus_set()
 recive_thread = threading.Thread(target=recive, daemon=True)
 recive_thread.start()
 
-write_thread = threading.Thread(target=write, daemon=True)
-write_thread.start() 
-
+#sets the icon for the window 
 root.iconbitmap("Icons/Ringer-Icon.ico")
 
+#tells the recive thread weather or no the user is focused in the window
+#if the user is not focused in the window, ringer will send a notification to the desktop when a message comes in 
 focus_check = tk.BooleanVar()
 root.bind('<FocusIn>', lambda _: focus_check.set(True))
 root.bind('<FocusOut>', lambda _: focus_check.set(False))
 
-e.bind('<Return>', (lambda event: write())) #this is so you can press enter to send a message 
+#this is so you can press enter to send a message 
+e.bind('<Return>', (lambda event: write())) 
+#handles CTRL + Backspace functionality 
 e.bind('<Control-Key-BackSpace>',(lambda event: clearText()))
 root.protocol("WM_DELETE_WINDOW", on_closing) 
 root.minsize(1000, 600)
