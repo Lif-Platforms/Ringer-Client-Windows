@@ -977,6 +977,73 @@ def addDm():
 
     addDmWindow.resizable(False, False)
 
+#window for removing a contact
+def removeDm():
+    removeDmWindow = Toplevel()
+    removeDmWindow.title("Remove DM") 
+    removeDmWindow.focus()                    
+    removeDmWindow.config(bg= bgColor) 
+    removeDmWindow.geometry("500x500")
+    #addDmWindow.iconbitmap("Ringer-Icon.ico")
+
+    def send():
+        socket.setdefaulttimeout(5)
+    
+        lifAccountServer = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        lifAccountServer.connect((serverIp, 20205))
+
+        while True:
+            DMmessage = lifAccountServer.recv(1024).decode('ascii')
+            if DMmessage:
+                print(DMmessage)
+
+            if DMmessage == 'USERNAME':
+                lifAccountServer.send(nickname.encode('ascii'))
+                print(nickname)
+
+            if DMmessage == 'PASSWORD':
+                password = passwrd
+
+                lifAccountServer.send(passwordHasher.get_initial_hash(password).encode('ascii')) 
+
+            if DMmessage == 'LOGIN_GOOD':
+                print("login Successful")
+                lifAccountServer.send("REMOVE_DM".encode('ascii'))
+                #playsound("Sounds/Ringer Welcome Login.wav")
+
+            if DMmessage == 'NO_USER':
+                messagebox.showerror("Error", "User is not in your contacts!")
+                lifAccountServer.close() 
+                removeDmWindow.focus()
+                break
+
+            if DMmessage == 'BAD_LOGIN_ERROR':
+                #response = messagebox.askquestion("Error", "Username or Password is Incorrect. Would You Like to reset Your Password?")
+                messagebox.showerror('Error', 'Username or password is incorrect.')
+                lifAccountServer.close()
+                break
+
+            if DMmessage == "DM_NAME?":
+                lifAccountServer.send(dmEntry.get().encode('ascii'))
+                print("sent dm name")
+
+            if DMmessage == "SUCCESS!":
+                print('success')
+                lifAccountServer.close() 
+                removeDmWindow.destroy() 
+                break
+
+    dmTitle = Label(removeDmWindow, text="Remove a Conversation", bg=bgColor, fg='white', font="Arial 20 bold")
+    dmTitle.pack()
+
+    dmEntry = customtkinter.CTkEntry(removeDmWindow, width=150, border_width=2)
+    dmEntry.pack(padx=5, pady=10)
+
+    sendDm = customtkinter.CTkButton(removeDmWindow, text="Remove", command=send, border_width=0, fg_color='orange', text_color="white", hover_color="#ffb34f", text_font="Arial 10 bold")
+    sendDm.pack()
+
+    removeDmWindow.resizable(False, False)
+
 myFont = font.Font(family='Arial')
 
 GUI = Frame(root, bg=bgColor)
@@ -1007,11 +1074,12 @@ dmLabel.pack(side=LEFT)
 #defines popup menu when add dm button is pressed
 addDmPopup = Menu(root, tearoff=0)
 addDmPopup.add_command(label="Add Dm", command=addDm)
-addDmPopup.add_command(label="Remove Dm")
+addDmPopup.add_command(label="Remove Dm", command=removeDm)
 
 #function that shows the popup
 def popupm(addDmButton):
-     try:         
+     try:     
+        #gets the x and y of the "addDmButton" 
         x = addDmButton.winfo_rootx()
         y = addDmButton.winfo_rooty() + 25
         addDmPopup.tk_popup(x, y, 0)
