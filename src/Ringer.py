@@ -19,10 +19,19 @@ import time
 import customtkinter
 from customtkinter import *
 import json
+import queue
 
 #global variables 
 global serverIp #global variable for the server ip
 serverIp ="127.0.0.1" 
+
+#used for knowing what user is currently selected
+global currentContact
+currentContact = queue.Queue()
+
+#used for storing the conversation history
+global conversations
+conversations = {} 
 
 global recoveryIp #ip address for the recovery server. Recovery server responsible for the "forget password" functionality 
 recoveryIp = "127.0.0.1" 
@@ -1165,7 +1174,10 @@ def updateContacts():
                 for contact in contacts:
                     #command when a contact is clicked
                     def loadContact(x = contact):
-                        print(x)
+                        global currentContact
+                        currentContact = queue.Queue()
+                        currentContact.put(x)
+                        text.delete("1.0","end")
 
                     #adding the contact buttons
                     button_dict[contact] = Button(contactsFrame, text=contact, bg=midgroundColor, fg="white", borderwidth=0, command=loadContact)
@@ -1176,8 +1188,8 @@ def updateContacts():
             if len(serverContacts) == 0 and len(exists) == 0:
                 noContacts = Label(contactsFrame, text="Nothing to See Here!", bg=midgroundColor, fg="white")
                 noContacts.pack(anchor=CENTER)
-        except:
-            pass 
+        except Exception as e:
+            print(e)
 
         time.sleep(5)
 
@@ -1186,7 +1198,7 @@ def updateContacts():
 updateContactsThread = threading.Thread(target=updateContacts, daemon=True)
 updateContactsThread.start() 
 
-
+#main thread for handling incoming messages 
 def recive(): 
     global client
     global recviveMessage
@@ -1215,7 +1227,12 @@ def recive():
 #run when you press enter in the message entry 
 def write(): 
     global recviveMessage
-    
+    global currentContact
+    print("sending...")
+    contact = currentContact.get()
+    if contact:
+        sendContact = contact
+    print(sendContact)
     #sending messages to the server
     Checkentry = e.get()
     if Checkentry == "":
@@ -1223,12 +1240,15 @@ def write():
     else: 
         try:
         
-            Message = f'''{message2.get()}
+            Message = f'''{sendContact}
     [{nickname}]
     {e.get()}
     ''' 
             client.send(Message.encode('ascii'))
             e.delete('0', END)
+
+            currentContact.put(sendContact)
+            
         except:
             messagebox.showerror("ERROR!", "Failed To Send Message") 
 
@@ -1247,8 +1267,8 @@ myImage2 = ImageTk.PhotoImage(Image.open('Images/sendButton.png'))
 
 #entry for entering the username you are sending a message to
 #this is temporary. will be replaced with the user panel
-message2 = Entry(GUI, width=10, borderwidth='0', bg = midgroundColor, fg = 'white', font=sendFont)
-message2.pack(side=LEFT,)
+loggedInUser = Label(GUI, width=10, borderwidth='0', bg = midgroundColor, fg = 'white', font=sendFont, text=f"{nickname}")
+loggedInUser.pack(side=LEFT,)
 
 e = Entry(GUI, width= 100, borderwidth = '0', bg = midgroundColor, fg = 'white', font=sendFont) 
 e.pack(side=LEFT, fill=X, expand=True, padx=20) 
